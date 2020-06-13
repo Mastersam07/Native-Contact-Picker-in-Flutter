@@ -17,10 +17,17 @@ class ContactPickerDemo extends StatefulWidget {
 class _ContactPickerDemoState extends State<ContactPickerDemo> {
   Contact selectedContact = Contact();
 
-  void pickContactFromNativeContact() async {
-    if (await checkAppPermissionsToContacts() == PermissionStatus.granted) {
-      selectedContact = await ContactsService.openDeviceContactPicker();
-      setState(() {});
+  void pickContactFromNativeApp() async {
+    if (await checkAppPermissionsToContacts() == PermissionStatus.granted) {      // if permissions are granted
+      try {
+        selectedContact = await ContactsService
+            .openDeviceContactPicker(); // Open Device Contacts app and return selected contact
+        setState(() {}); //Call set state to update UI with the contact details.
+      } catch (e) {
+        //User cancelled operation 
+        //Contacts app could not be opened
+        //An UnkownError occured
+      }
     }
   }
 
@@ -42,11 +49,13 @@ class _ContactPickerDemoState extends State<ContactPickerDemo> {
 
   String convertIteratorValuesToString(Iterator iterator) {
     String stringFromIterable = '';
-    if (iterator != null)
+    if (iterator != null) //If an iterator was passed
       while (iterator.moveNext()) {
-        stringFromIterable += iterator.current.value + " , ";
+        //Loop through all the items
+        stringFromIterable += iterator.current.value +
+            " , "; //Add the items to string separated with a comma
       }
-    return stringFromIterable;
+    return stringFromIterable; //Return the comma separated string.
   }
 
   @override
@@ -80,15 +89,11 @@ class _ContactPickerDemoState extends State<ContactPickerDemo> {
                     label: 'Emails',
                     data: convertIteratorValuesToString(
                         selectedContact.emails?.iterator)),
-                InfoDisplay(
-                  label: 'Birthday',
-                  data: selectedContact.birthday.toString(),
-                ),
               ],
             ),
             FlatButton(
               onPressed: () {
-                pickContactFromNativeContact();
+                pickContactFromNativeApp();
               },
               child: Text('Select Contact'),
               shape: RoundedRectangleBorder(
